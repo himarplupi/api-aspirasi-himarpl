@@ -1,0 +1,1 @@
+ALTER TABLE `display_aspirasi` ADD `ilustrasi` text(100);
