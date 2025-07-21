@@ -108,12 +108,8 @@
           "name": "display_aspirasi_added_by_users_email_fk",
           "tableFrom": "display_aspirasi",
           "tableTo": "users",
-          "columnsFrom": [
-            "added_by"
-          ],
-          "columnsTo": [
-            "email"
-          ],
+          "columnsFrom": ["added_by"],
+          "columnsTo": ["email"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -164,9 +160,7 @@
       "indexes": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         }
       },

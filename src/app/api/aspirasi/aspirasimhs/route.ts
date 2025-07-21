@@ -21,20 +21,21 @@ export async function GET(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "Token tidak ditemukan di header" },
-          { status: 401 }
-        )
+          { status: 401 },
+        ),
       );
     }
 
     const token = authHeader.replace("Bearer ", "").trim();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { isValid, error, payload, newToken } = validateToken(token);
 
     if (!isValid) {
       return applyCors(
         NextResponse.json(
           { success: false, error: error || "Token tidak valid" },
-          { status: 401 }
-        )
+          { status: 401 },
+        ),
       );
     }
 
@@ -49,8 +50,8 @@ export async function GET(request: NextRequest) {
         return applyCors(
           NextResponse.json(
             { success: false, error: "ID aspirasi tidak valid" },
-            { status: 400 }
-          )
+            { status: 400 },
+          ),
         );
       }
       result = await getAspirasiById(idNumber);
@@ -76,8 +77,8 @@ export async function GET(request: NextRequest) {
           error: "Terjadi kesalahan server",
           details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 500 }
-      )
+        { status: 500 },
+      ),
     );
   }
 }
@@ -94,8 +95,8 @@ export async function POST(request: NextRequest) {
             success: false,
             error: "Field aspirasi harus diisi dan berupa string",
           },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
@@ -103,8 +104,8 @@ export async function POST(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "Field penulis harus berupa string" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
@@ -112,8 +113,8 @@ export async function POST(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "Field penulis maksimal 100 karakter" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
     return applyCors(
       NextResponse.json(result, {
         status: result.success ? 201 : 400,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error in POST aspirasi:", error);
@@ -136,8 +137,8 @@ export async function POST(request: NextRequest) {
           error: "Terjadi kesalahan server",
           details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 500 }
-      )
+        { status: 500 },
+      ),
     );
   }
 }
@@ -152,8 +153,8 @@ export async function DELETE(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "ID aspirasi harus disertakan" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
@@ -162,8 +163,8 @@ export async function DELETE(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "ID aspirasi tidak valid" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
@@ -172,7 +173,7 @@ export async function DELETE(request: NextRequest) {
     return applyCors(
       NextResponse.json(result, {
         status: result.success ? 200 : 404,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error in DELETE aspirasi:", error);
@@ -183,8 +184,8 @@ export async function DELETE(request: NextRequest) {
           error: "Terjadi kesalahan server",
           details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 500 }
-      )
+        { status: 500 },
+      ),
     );
   }
 }

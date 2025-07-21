@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { registerUser } from '@/db/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { registerUser } from "@/db/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
     // Validasi input
     if (!email || !nama || !password) {
       return NextResponse.json(
-        { status: 'error', message: 'Email, nama, dan password wajib diisi' },
-        { status: 400 }
+        { status: "error", message: "Email, nama, dan password wajib diisi" },
+        { status: 400 },
       );
     }
 
@@ -19,14 +19,15 @@ export async function POST(request: NextRequest) {
 
     // Return response dengan JWT
     return NextResponse.json(result, { status: 201 });
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   } catch (error: any) {
-    const message = error.message || 'Terjadi kesalahan pada server';
+    const message = error.message || "Terjadi kesalahan pada server";
 
-    const statusCode = message === 'Email sudah terdaftar' ? 409 : 500;
+    const statusCode = message === "Email sudah terdaftar" ? 409 : 500;
 
     return NextResponse.json(
-      { status: 'error', message },
-      { status: statusCode }
+      { status: "error", message },
+      { status: statusCode },
     );
   }
 }

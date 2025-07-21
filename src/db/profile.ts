@@ -22,7 +22,7 @@ export async function updateUserName(id: number, newName: string) {
 export async function updateUserPassword(
   id: number,
   oldPassword: string,
-  newPassword: string
+  newPassword: string,
 ) {
   const user = await getUserById(id);
   if (!user) {

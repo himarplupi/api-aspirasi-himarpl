@@ -1,11 +1,13 @@
 import { db } from "./index";
-import { users, User, NewUser } from './schema';
-import { eq, and, ne } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
-import { createToken } from '@/utils/jwt';
+import { users, User, NewUser } from "./schema";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { eq, and, ne } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { createToken } from "@/utils/jwt";
 
 // Interface untuk user tanpa password
-export interface UserWithoutPassword extends Omit<User, 'password'> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UserWithoutPassword extends Omit<User, "password"> {}
 
 // Interface untuk response service
 export interface UserServiceResponse {
@@ -24,7 +26,7 @@ export interface UserServiceResponse {
  */
 export async function getAllUsersExceptSelf(
   currentUserId: number,
-  currentUserRole: string
+  currentUserRole: string,
 ): Promise<UserServiceResponse> {
   try {
     // Query untuk mengambil semua user kecuali user yang sedang login
@@ -42,14 +44,14 @@ export async function getAllUsersExceptSelf(
       success: true,
       data: result,
       message: `Berhasil mengambil ${result.length} data user`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   } catch (error: any) {
     return {
       success: false,
       error: `Gagal mengambil data user: ${error.message}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
   }
 }
@@ -64,7 +66,7 @@ export async function getAllUsersExceptSelf(
 export async function getUserById(
   userId: number,
   currentUserId: number,
-  currentUserRole: string
+  currentUserRole: string,
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba mengakses data diri sendiri
@@ -72,7 +74,7 @@ export async function getUserById(
       return {
         success: false,
         error: "Tidak dapat mengakses data diri sendiri melalui endpoint ini",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
@@ -90,7 +92,7 @@ export async function getUserById(
       return {
         success: false,
         error: "User tidak ditemukan",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
@@ -98,14 +100,13 @@ export async function getUserById(
       success: true,
       data: user,
       message: "Berhasil mengambil data user",
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
-
   } catch (error: any) {
     return {
       success: false,
       error: `Gagal mengambil data user: ${error.message}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
   }
 }
@@ -120,7 +121,7 @@ export async function getUserById(
 export async function deleteUser(
   userId: number,
   currentUserId: number,
-  currentUserRole: string
+  currentUserRole: string,
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba menghapus diri sendiri
@@ -128,7 +129,7 @@ export async function deleteUser(
       return {
         success: false,
         error: "Tidak dapat menghapus akun sendiri",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
@@ -147,27 +148,24 @@ export async function deleteUser(
       return {
         success: false,
         error: "User tidak ditemukan",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
     // Hapus user
-    await db
-      .delete(users)
-      .where(eq(users.id, userId));
+    await db.delete(users).where(eq(users.id, userId));
 
     return {
       success: true,
       data: userToDelete,
       message: `Berhasil menghapus user ${userToDelete.nama} (${userToDelete.email})`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
-
   } catch (error: any) {
     return {
       success: false,
       error: `Gagal menghapus user: ${error.message}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
   }
 }
@@ -182,9 +180,9 @@ export async function deleteUser(
  */
 export async function updateUserRole(
   userId: number,
-  newRole: 'admin' | 'superadmin',
+  newRole: "admin" | "superadmin",
   currentUserId: number,
-  currentUserRole: string
+  currentUserRole: string,
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba mengupdate diri sendiri
@@ -192,7 +190,7 @@ export async function updateUserRole(
       return {
         success: false,
         error: "Tidak dapat mengupdate role sendiri",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
@@ -211,15 +209,12 @@ export async function updateUserRole(
       return {
         success: false,
         error: "User tidak ditemukan",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
     // Update role user
-    await db
-      .update(users)
-      .set({ role: newRole })
-      .where(eq(users.id, userId));
+    await db.update(users).set({ role: newRole }).where(eq(users.id, userId));
 
     // Ambil data user yang sudah diupdate
     const [updatedUser] = await db
@@ -236,14 +231,13 @@ export async function updateUserRole(
       success: true,
       data: updatedUser,
       message: `Berhasil mengupdate role user ${updatedUser.nama} menjadi ${newRole}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
-
   } catch (error: any) {
     return {
       success: false,
       error: `Gagal mengupdate role user: ${error.message}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
   }
 }
@@ -258,7 +252,7 @@ export async function updateUserRole(
 export async function promoteToSuperadmin(
   userId: number,
   currentUserId: number,
-  currentUserRole: string
+  currentUserRole: string,
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba promote diri sendiri
@@ -266,7 +260,7 @@ export async function promoteToSuperadmin(
       return {
         success: false,
         error: "Tidak dapat mempromote diri sendiri",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
@@ -285,29 +279,29 @@ export async function promoteToSuperadmin(
       return {
         success: false,
         error: "User tidak ditemukan",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
     // Cek apakah user sudah superadmin
-    if (userToPromote.role === 'superadmin') {
+    if (userToPromote.role === "superadmin") {
       return {
         success: false,
         error: "User sudah memiliki role superadmin",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
 
     // Mulai transaksi: ubah current superadmin menjadi admin
     await db
       .update(users)
-      .set({ role: 'admin' })
+      .set({ role: "admin" })
       .where(eq(users.id, currentUserId));
 
     // Promote user baru menjadi superadmin
     await db
       .update(users)
-      .set({ role: 'superadmin' })
+      .set({ role: "superadmin" })
       .where(eq(users.id, userId));
 
     // Ambil data user yang sudah dipromote
@@ -325,14 +319,13 @@ export async function promoteToSuperadmin(
       success: true,
       data: promotedUser,
       message: `Berhasil mempromote ${promotedUser.nama} menjadi superadmin. Anda sekarang menjadi admin.`,
-      currentUserRole: 'admin' // Role yang baru setelah diturunkan
+      currentUserRole: "admin", // Role yang baru setelah diturunkan
     };
-
   } catch (error: any) {
     return {
       success: false,
       error: `Gagal mempromote user: ${error.message}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
   }
 }
@@ -350,31 +343,31 @@ export async function registerUser(
     password: string;
     role?: string;
   },
-  currentUserRole: string
+  currentUserRole: string,
 ): Promise<UserServiceResponse> {
   try {
     // Hash password
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    
+
     // Siapkan data user baru
     const allowedRoles = ["admin", "superadmin"] as const;
     type Role = (typeof allowedRoles)[number];
     let finalRole: Role = "admin"; // default admin, bukan superadmin
-    
+
     if (userData.role && allowedRoles.includes(userData.role as Role)) {
       finalRole = userData.role as Role;
     }
-    
+
     const newUser: NewUser = {
       email: userData.email,
       nama: userData.nama,
       password: hashedPassword,
       role: finalRole,
     };
-    
+
     // Simpan user ke database
     await db.insert(users).values(newUser);
-    
+
     // Ambil user yang baru dibuat (tanpa password)
     const [createdUser] = await db
       .select({
@@ -385,36 +378,37 @@ export async function registerUser(
       })
       .from(users)
       .where(eq(users.email, userData.email));
-    
+
     if (!createdUser) {
       throw new Error("Gagal membuat pengguna");
     }
-    
+
     // Buat token JWT menggunakan utility
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const token = createToken({
       id: createdUser.id,
       email: createdUser.email,
       role: createdUser.role,
     });
-    
-    return { 
+
+    return {
       success: true,
       data: createdUser,
       message: `Berhasil membuat user ${createdUser.nama} dengan role ${createdUser.role}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
   } catch (error: any) {
     if (error.message.includes("UNIQUE constraint failed")) {
       return {
         success: false,
         error: "Email sudah terdaftar",
-        currentUserRole: currentUserRole
+        currentUserRole: currentUserRole,
       };
     }
     return {
       success: false,
       error: `Gagal membuat user: ${error.message}`,
-      currentUserRole: currentUserRole
+      currentUserRole: currentUserRole,
     };
   }
 }

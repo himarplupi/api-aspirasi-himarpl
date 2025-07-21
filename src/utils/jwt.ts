@@ -21,7 +21,7 @@ export interface TokenValidationResult {
 }
 
 // Fungsi untuk membuat token JWT
-export function createToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
+export function createToken(payload: Omit<JWTPayload, "iat" | "exp">): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "30m" });
 }
 
@@ -30,12 +30,12 @@ export function validateToken(token: string): TokenValidationResult {
   try {
     // Verifikasi token
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-    
+
     // Cek apakah token masih valid
     if (!decoded.exp) {
       return {
         isValid: false,
-        error: "Token tidak memiliki waktu kedaluwarsa"
+        error: "Token tidak memiliki waktu kedaluwarsa",
       };
     }
 
@@ -46,7 +46,7 @@ export function validateToken(token: string): TokenValidationResult {
     if (timeUntilExpiry <= 0) {
       return {
         isValid: false,
-        error: "Token sudah kedaluwarsa"
+        error: "Token sudah kedaluwarsa",
       };
     }
 
@@ -56,19 +56,19 @@ export function validateToken(token: string): TokenValidationResult {
       newToken = createToken({
         id: decoded.id,
         email: decoded.email,
-        role: decoded.role
+        role: decoded.role,
       });
     }
 
     return {
       isValid: true,
       payload: decoded,
-      newToken
+      newToken,
     };
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   } catch (error: any) {
     let errorMessage = "Token tidak valid";
-    
+
     if (error.name === "TokenExpiredError") {
       errorMessage = "Token sudah kedaluwarsa";
     } else if (error.name === "JsonWebTokenError") {
@@ -79,7 +79,7 @@ export function validateToken(token: string): TokenValidationResult {
 
     return {
       isValid: false,
-      error: errorMessage
+      error: errorMessage,
     };
   }
 }
@@ -88,13 +88,17 @@ export function validateToken(token: string): TokenValidationResult {
 export function decodeToken(token: string): JWTPayload | null {
   try {
     return jwt.decode(token) as JWTPayload;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return null;
   }
 }
 
 // Fungsi untuk memeriksa apakah token akan segera kedaluwarsa
-export function isTokenExpiringSoon(token: string, thresholdMinutes: number = 10): boolean {
+export function isTokenExpiringSoon(
+  token: string,
+  thresholdMinutes: number = 10,
+): boolean {
   const decoded = decodeToken(token);
   if (!decoded || !decoded.exp) return true;
 

@@ -37,12 +37,12 @@ async function getUserFromRequest(req: NextRequest) {
 // Helper untuk menghapus file ilustrasi
 async function deleteIllustrationFile(filename: string | null): Promise<void> {
   if (!filename) return;
-  
+
   try {
     const filePath = path.join(
       process.cwd(),
       "public/assets/images/ilustrasi_aspirasi",
-      filename
+      filename,
     );
     await fs.unlink(filePath);
     console.log(`Successfully deleted old illustration: ${filename}`);
@@ -57,11 +57,12 @@ async function saveIllustrationFile(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
   const dir = path.join(
     process.cwd(),
-    "public/assets/images/ilustrasi_aspirasi"
+    "public/assets/images/ilustrasi_aspirasi",
   );
   await fs.mkdir(dir, { recursive: true });
 
   const timestamp = Date.now();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const fileExtension = path.extname(file.name);
   const filename = `aspirasi-${timestamp}-${file.name}`;
   const filePath = path.join(dir, filename);
@@ -81,12 +82,12 @@ export async function GET(req: NextRequest) {
       NextResponse.json({
         count,
         data,
-      })
+      }),
     );
   } catch (error) {
     console.error("Gagal mengambil data:", error);
     return applyCors(
-      NextResponse.json({ error: "Terjadi kesalahan" }, { status: 500 })
+      NextResponse.json({ error: "Terjadi kesalahan" }, { status: 500 }),
     );
   }
 }
@@ -113,8 +114,8 @@ export async function POST(req: NextRequest) {
       return applyCors(
         NextResponse.json(
           { error: "Gagal menyimpan file ilustrasi" },
-          { status: 500 }
-        )
+          { status: 500 },
+        ),
       );
     }
   }
@@ -125,18 +126,18 @@ export async function POST(req: NextRequest) {
       kategori,
       payload!.email,
       status,
-      ilustrasiFilename
+      ilustrasiFilename,
     );
     if (!inserted)
       return applyCors(
         NextResponse.json(
           { error: "Gagal menambahkan aspirasi" },
-          { status: 500 }
-        )
+          { status: 500 },
+        ),
       );
 
     return applyCors(
-      NextResponse.json({ message: "Berhasil ditambahkan", data: inserted })
+      NextResponse.json({ message: "Berhasil ditambahkan", data: inserted }),
     );
   } catch (dbError) {
     console.error("Database error:", dbError);
@@ -149,14 +150,15 @@ export async function POST(req: NextRequest) {
     return applyCors(
       NextResponse.json(
         { error: "Gagal menambahkan aspirasi" },
-        { status: 500 }
-      )
+        { status: 500 },
+      ),
     );
   }
 }
 
 // PUT: Update status / kategori / ilustrasi
 export async function PUT(req: NextRequest) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { payload, error } = await getUserFromRequest(req);
   if (error) return applyCors(NextResponse.json({ error }, { status: 401 }));
 
@@ -186,8 +188,8 @@ export async function PUT(req: NextRequest) {
         return applyCors(
           NextResponse.json(
             { error: "Gagal menyimpan file ilustrasi" },
-            { status: 500 }
-          )
+            { status: 500 },
+          ),
         );
       }
     }
@@ -195,7 +197,7 @@ export async function PUT(req: NextRequest) {
     result = await updateDisplayAspirasiText(
       id_dispirasi,
       newText,
-      ilustrasiFilename
+      ilustrasiFilename,
     );
   } else if (action === "update_image") {
     // NEW: Logic untuk update image saja
@@ -205,21 +207,25 @@ export async function PUT(req: NextRequest) {
       return applyCors(
         NextResponse.json(
           { error: "File ilustrasi harus disediakan" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
     try {
       // 1. Ambil nama file ilustrasi lama
-      const oldIlustrasiFilename = await getDisplayAspirasiIlustrasi(id_dispirasi);
-      
+      const oldIlustrasiFilename =
+        await getDisplayAspirasiIlustrasi(id_dispirasi);
+
       // 2. Simpan file baru
       const newIlustrasiFilename = await saveIllustrationFile(ilustrasiFile);
-      
+
       // 3. Update database dengan nama file baru
-      result = await updateDisplayAspirasiIlustrasi(id_dispirasi, newIlustrasiFilename);
-      
+      result = await updateDisplayAspirasiIlustrasi(
+        id_dispirasi,
+        newIlustrasiFilename,
+      );
+
       if (result) {
         // 4. Hapus file lama setelah berhasil update database
         await deleteIllustrationFile(oldIlustrasiFilename);
@@ -232,15 +238,15 @@ export async function PUT(req: NextRequest) {
       return applyCors(
         NextResponse.json(
           { error: "Gagal mengupdate ilustrasi" },
-          { status: 500 }
-        )
+          { status: 500 },
+        ),
       );
     }
   }
 
   if (!result)
     return applyCors(
-      NextResponse.json({ error: "Update gagal" }, { status: 500 })
+      NextResponse.json({ error: "Update gagal" }, { status: 500 }),
     );
 
   return applyCors(NextResponse.json({ message: "Update berhasil" }));
@@ -248,6 +254,7 @@ export async function PUT(req: NextRequest) {
 
 // DELETE: Delete by id_dispirasi
 export async function DELETE(req: NextRequest) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { payload, error } = await getUserFromRequest(req);
   if (error) return applyCors(NextResponse.json({ error }, { status: 401 }));
 
@@ -255,23 +262,23 @@ export async function DELETE(req: NextRequest) {
   const id_dispirasi = parseInt(searchParams.get("id") || "0");
   if (!id_dispirasi) {
     return applyCors(
-      NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
+      NextResponse.json({ error: "ID tidak valid" }, { status: 400 }),
     );
   }
 
   try {
     // Ambil nama file ilustrasi sebelum menghapus dari database
     const ilustrasiFilename = await getDisplayAspirasiIlustrasi(id_dispirasi);
-    
+
     // Hapus dari database
     const result = await deleteDisplayAspirasi(id_dispirasi);
-    
+
     if (!result) {
       return applyCors(
-        NextResponse.json({ error: "Gagal menghapus data" }, { status: 500 })
+        NextResponse.json({ error: "Gagal menghapus data" }, { status: 500 }),
       );
     }
-    
+
     // Hapus file ilustrasi jika ada
     if (ilustrasiFilename) {
       await deleteIllustrationFile(ilustrasiFilename);
@@ -281,7 +288,7 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     console.error("Error deleting display aspirasi:", error);
     return applyCors(
-      NextResponse.json({ error: "Gagal menghapus data" }, { status: 500 })
+      NextResponse.json({ error: "Gagal menghapus data" }, { status: 500 }),
     );
   }
 }

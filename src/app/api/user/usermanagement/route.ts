@@ -3,10 +3,11 @@ import {
   getAllUsersExceptSelf,
   getUserById,
   deleteUser,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updateUserRole,
   promoteToSuperadmin,
   registerUser,
-  UserServiceResponse
+  UserServiceResponse,
 } from "@/db/userservice";
 import { validateToken } from "@/utils/jwt";
 import { applyCors, handleOptions } from "@/utils/cors";
@@ -33,10 +34,11 @@ async function getUserFromRequest(req: NextRequest) {
 
 // Helper untuk memvalidasi role superadmin
 function validateSuperadmin(role: string) {
-  if (role !== 'superadmin') {
+  if (role !== "superadmin") {
     return {
-      error: "Akses ditolak: Hanya superadmin yang dapat mengakses endpoint ini",
-      status: 403
+      error:
+        "Akses ditolak: Hanya superadmin yang dapat mengakses endpoint ini",
+      status: 403,
     };
   }
   return null;
@@ -55,8 +57,8 @@ export async function GET(req: NextRequest) {
     return applyCors(
       NextResponse.json(
         { error: roleValidation.error },
-        { status: roleValidation.status }
-      )
+        { status: roleValidation.status },
+      ),
     );
   }
 
@@ -71,10 +73,7 @@ export async function GET(req: NextRequest) {
       const userIdNum = parseInt(userId);
       if (isNaN(userIdNum)) {
         return applyCors(
-          NextResponse.json(
-            { error: "ID user tidak valid" },
-            { status: 400 }
-          )
+          NextResponse.json({ error: "ID user tidak valid" }, { status: 400 }),
         );
       }
 
@@ -88,8 +87,8 @@ export async function GET(req: NextRequest) {
       return applyCors(
         NextResponse.json(
           { error: result.error },
-          { status: result.error?.includes("tidak ditemukan") ? 404 : 400 }
-        )
+          { status: result.error?.includes("tidak ditemukan") ? 404 : 400 },
+        ),
       );
     }
 
@@ -98,17 +97,13 @@ export async function GET(req: NextRequest) {
         success: true,
         data: result.data,
         message: result.message,
-        currentUserRole: result.currentUserRole
-      })
+        currentUserRole: result.currentUserRole,
+      }),
     );
-
   } catch (error) {
     console.error("Error in GET /api/users:", error);
     return applyCors(
-      NextResponse.json(
-        { error: "Terjadi kesalahan server" },
-        { status: 500 }
-      )
+      NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 }),
     );
   }
 }
@@ -120,14 +115,14 @@ export async function POST(req: NextRequest) {
     return applyCors(NextResponse.json({ error }, { status: 401 }));
   }
 
-  // Validasi role 
+  // Validasi role
   const roleValidation = validateSuperadmin(payload!.role);
   if (roleValidation) {
     return applyCors(
       NextResponse.json(
         { error: roleValidation.error },
-        { status: roleValidation.status }
-      )
+        { status: roleValidation.status },
+      ),
     );
   }
 
@@ -140,32 +135,32 @@ export async function POST(req: NextRequest) {
       return applyCors(
         NextResponse.json(
           { error: "Email, nama, dan password harus disediakan" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
     // Validasi role jika disediakan
-    if (role && !['admin', 'superadmin'].includes(role)) {
+    if (role && !["admin", "superadmin"].includes(role)) {
       return applyCors(
         NextResponse.json(
           { error: "Role harus 'admin' atau 'superadmin'" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
     const result = await registerUser(
       { email, nama, password, role },
-      payload!.role
+      payload!.role,
     );
 
     if (!result.success) {
       return applyCors(
         NextResponse.json(
           { error: result.error },
-          { status: result.error?.includes("sudah terdaftar") ? 409 : 400 }
-        )
+          { status: result.error?.includes("sudah terdaftar") ? 409 : 400 },
+        ),
       );
     }
 
@@ -174,17 +169,13 @@ export async function POST(req: NextRequest) {
         success: true,
         data: result.data,
         message: result.message,
-        currentUserRole: result.currentUserRole
-      })
+        currentUserRole: result.currentUserRole,
+      }),
     );
-
   } catch (error) {
     console.error("Error in POST /api/users:", error);
     return applyCors(
-      NextResponse.json(
-        { error: "Terjadi kesalahan server" },
-        { status: 500 }
-      )
+      NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 }),
     );
   }
 }
@@ -202,8 +193,8 @@ export async function DELETE(req: NextRequest) {
     return applyCors(
       NextResponse.json(
         { error: roleValidation.error },
-        { status: roleValidation.status }
-      )
+        { status: roleValidation.status },
+      ),
     );
   }
 
@@ -212,20 +203,14 @@ export async function DELETE(req: NextRequest) {
 
   if (!userId) {
     return applyCors(
-      NextResponse.json(
-        { error: "ID user harus disediakan" },
-        { status: 400 }
-      )
+      NextResponse.json({ error: "ID user harus disediakan" }, { status: 400 }),
     );
   }
 
   const userIdNum = parseInt(userId);
   if (isNaN(userIdNum)) {
     return applyCors(
-      NextResponse.json(
-        { error: "ID user tidak valid" },
-        { status: 400 }
-      )
+      NextResponse.json({ error: "ID user tidak valid" }, { status: 400 }),
     );
   }
 
@@ -236,8 +221,8 @@ export async function DELETE(req: NextRequest) {
       return applyCors(
         NextResponse.json(
           { error: result.error },
-          { status: result.error?.includes("tidak ditemukan") ? 404 : 400 }
-        )
+          { status: result.error?.includes("tidak ditemukan") ? 404 : 400 },
+        ),
       );
     }
 
@@ -246,17 +231,13 @@ export async function DELETE(req: NextRequest) {
         success: true,
         data: result.data,
         message: result.message,
-        currentUserRole: result.currentUserRole
-      })
+        currentUserRole: result.currentUserRole,
+      }),
     );
-
   } catch (error) {
     console.error("Error in DELETE /api/users:", error);
     return applyCors(
-      NextResponse.json(
-        { error: "Terjadi kesalahan server" },
-        { status: 500 }
-      )
+      NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 }),
     );
   }
 }
@@ -274,8 +255,8 @@ export async function PUT(req: NextRequest) {
     return applyCors(
       NextResponse.json(
         { error: roleValidation.error },
-        { status: roleValidation.status }
-      )
+        { status: roleValidation.status },
+      ),
     );
   }
 
@@ -287,32 +268,32 @@ export async function PUT(req: NextRequest) {
       return applyCors(
         NextResponse.json(
           { error: "userId harus disediakan" },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
-    if (action !== 'promote') {
+    if (action !== "promote") {
       return applyCors(
         NextResponse.json(
           { error: "Aksi tidak valid. Hanya 'promote' yang diizinkan." },
-          { status: 400 }
-        )
+          { status: 400 },
+        ),
       );
     }
 
     const result = await promoteToSuperadmin(
       parseInt(userId),
       payload!.id,
-      payload!.role
+      payload!.role,
     );
 
     if (!result.success) {
       return applyCors(
         NextResponse.json(
           { error: result.error },
-          { status: result.error?.includes("tidak ditemukan") ? 404 : 400 }
-        )
+          { status: result.error?.includes("tidak ditemukan") ? 404 : 400 },
+        ),
       );
     }
 
@@ -321,17 +302,13 @@ export async function PUT(req: NextRequest) {
         success: true,
         data: result.data,
         message: result.message,
-        currentUserRole: result.currentUserRole
-      })
+        currentUserRole: result.currentUserRole,
+      }),
     );
-
   } catch (error) {
     console.error("Error in PUT /api/users:", error);
     return applyCors(
-      NextResponse.json(
-        { error: "Terjadi kesalahan server" },
-        { status: 500 }
-      )
+      NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 }),
     );
   }
 }

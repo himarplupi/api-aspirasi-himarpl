@@ -1,4 +1,3 @@
-
 import { db } from "./index";
 import { users, NewUser } from "./schema";
 import { eq } from "drizzle-orm";
@@ -15,26 +14,26 @@ export async function registerUser(userData: {
   try {
     // Hash password
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    
+
     // Siapkan data user baru
     const allowedRoles = ["admin", "superadmin"] as const;
     type Role = (typeof allowedRoles)[number];
     let finalRole: Role = "admin"; // default
-    
+
     if (userData.role && allowedRoles.includes(userData.role as Role)) {
       finalRole = userData.role as Role;
     }
-    
+
     const newUser: NewUser = {
       email: userData.email,
       nama: userData.nama,
       password: hashedPassword,
       role: finalRole,
     };
-    
+
     // Simpan user ke database
     await db.insert(users).values(newUser);
-    
+
     // Ambil user yang baru dibuat (tanpa password)
     const createdUser = await db
       .select({
@@ -45,23 +44,24 @@ export async function registerUser(userData: {
       })
       .from(users)
       .where(eq(users.email, userData.email));
-    
+
     if (createdUser.length === 0) {
       throw new Error("Gagal membuat pengguna");
     }
-    
+
     // Buat token JWT menggunakan utility
     const token = createToken({
       id: createdUser[0].id,
       email: createdUser[0].email,
       role: createdUser[0].role,
     });
-    
-    return { 
-      status: "success", 
-      token
-    //   user: createdUser[0]
+
+    return {
+      status: "success",
+      token,
+      //   user: createdUser[0]
     };
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   } catch (error: any) {
     if (error.message.includes("UNIQUE constraint failed")) {
       throw new Error("Email sudah terdaftar");
@@ -81,39 +81,39 @@ export async function loginUser(credentials: {
       .select()
       .from(users)
       .where(eq(users.email, credentials.email));
-    
+
     if (userResult.length === 0) {
       throw new Error("Email atau password salah");
     }
-    
+
     const user = userResult[0];
-    
+
     // Verifikasi password
     const passwordMatch = await bcrypt.compare(
       credentials.password,
-      user.password
+      user.password,
     );
-    
+
     if (!passwordMatch) {
       throw new Error("Email atau password salah");
     }
-    
+
     // Buat token JWT menggunakan utility
     const token = createToken({
       id: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
     });
-    
-    return { 
-      status: "success", 
+
+    return {
+      status: "success",
       token,
       user: {
         id: user.id,
         email: user.email,
         nama: user.nama,
-        role: user.role
-      }
+        role: user.role,
+      },
     };
   } catch (error) {
     throw error;

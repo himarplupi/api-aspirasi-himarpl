@@ -1,6 +1,7 @@
 // db/aspirasiDisplay.ts
 
 import { db } from "./index";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { aspirasi, displayAspirasi } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
