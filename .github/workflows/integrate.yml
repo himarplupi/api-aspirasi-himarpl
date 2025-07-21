@@ -18,14 +18,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: "20.x"
-      - name: Create env file
-        run: |
-          touch .env
-          echo "${{ secrets.ENV_FILE }}" > .env
+      # - name: Create env file
+      #   run: |
+      #     touch .env
+      #     echo "${{ secrets.ENV_FILE }}" > .env
       - name: Install Dependencies
         run: npm ci
-      - name: Post Install
-        run: npm run postinstall
       - name: Run Linting
         run: npm run lint
 
