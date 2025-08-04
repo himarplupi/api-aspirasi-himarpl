@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 export interface InsertAspirasiInput {
   aspirasi: string;
   penulis?: string;
+  kategori?: "prodi" | "hima";
 }
 
 // Function untuk insert aspirasi
@@ -19,6 +20,7 @@ export async function insertAspirasi(data: InsertAspirasiInput) {
       .values({
         aspirasi: data.aspirasi,
         penulis: data.penulis || null,
+        kategori: data.kategori || null,
         c_date: currentDate,
       }) // id_aspirasi tidak disebutkan, sehingga tidak dikirim
       .returning();

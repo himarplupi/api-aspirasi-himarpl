@@ -12,6 +12,7 @@ export const aspirasi = sqliteTable("aspirasi", {
   id_aspirasi: integer("id_aspirasi").primaryKey({ autoIncrement: true }),
   aspirasi: text("aspirasi").notNull(),
   penulis: text("penulis", { length: 100 }),
+  kategori: text("kategori", { enum: ["prodi", "hima"] }),
   c_date: text("c_date").notNull(), // SQLite doesn't have datetime, using text with ISO format
 });
 

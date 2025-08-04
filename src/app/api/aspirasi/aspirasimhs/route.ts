@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  insertAspirasi,
-  deleteAspirasi,
-  getAllAspirasi,
-  getAspirasiById,
-} from "@/db/aspirasi";
+import { insertAspirasi, deleteAspirasi, getAllAspirasi, getAspirasiById } from "@/db/aspirasi";
 import { validateToken } from "@/utils/jwt";
 import { applyCors, handleOptions } from "@/utils/cors";
 
@@ -21,8 +16,8 @@ export async function GET(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "Token tidak ditemukan di header" },
-          { status: 401 },
-        ),
+          { status: 401 }
+        )
       );
     }
 
@@ -32,10 +27,7 @@ export async function GET(request: NextRequest) {
 
     if (!isValid) {
       return applyCors(
-        NextResponse.json(
-          { success: false, error: error || "Token tidak valid" },
-          { status: 401 },
-        ),
+        NextResponse.json({ success: false, error: error || "Token tidak valid" }, { status: 401 })
       );
     }
 
@@ -48,10 +40,7 @@ export async function GET(request: NextRequest) {
       const idNumber = parseInt(id);
       if (isNaN(idNumber)) {
         return applyCors(
-          NextResponse.json(
-            { success: false, error: "ID aspirasi tidak valid" },
-            { status: 400 },
-          ),
+          NextResponse.json({ success: false, error: "ID aspirasi tidak valid" }, { status: 400 })
         );
       }
       result = await getAspirasiById(idNumber);
@@ -77,8 +66,8 @@ export async function GET(request: NextRequest) {
           error: "Terjadi kesalahan server",
           details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 500 },
-      ),
+        { status: 500 }
+      )
     );
   }
 }
@@ -95,8 +84,8 @@ export async function POST(request: NextRequest) {
             success: false,
             error: "Field aspirasi harus diisi dan berupa string",
           },
-          { status: 400 },
-        ),
+          { status: 400 }
+        )
       );
     }
 
@@ -104,8 +93,8 @@ export async function POST(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "Field penulis harus berupa string" },
-          { status: 400 },
-        ),
+          { status: 400 }
+        )
       );
     }
 
@@ -113,20 +102,31 @@ export async function POST(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "Field penulis maksimal 100 karakter" },
-          { status: 400 },
-        ),
+          { status: 400 }
+        )
+      );
+    }
+
+    // Validasi kategori jika ada
+    if (body.kategori && !["prodi", "hima"].includes(body.kategori)) {
+      return applyCors(
+        NextResponse.json(
+          { success: false, error: "Kategori harus berupa 'prodi' atau 'hima'" },
+          { status: 400 }
+        )
       );
     }
 
     const result = await insertAspirasi({
       aspirasi: body.aspirasi.trim(),
       penulis: body.penulis?.trim() || null,
+      kategori: body.kategori || null,
     });
 
     return applyCors(
       NextResponse.json(result, {
         status: result.success ? 201 : 400,
-      }),
+      })
     );
   } catch (error) {
     console.error("Error in POST aspirasi:", error);
@@ -137,8 +137,8 @@ export async function POST(request: NextRequest) {
           error: "Terjadi kesalahan server",
           details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 500 },
-      ),
+        { status: 500 }
+      )
     );
   }
 }
@@ -153,18 +153,15 @@ export async function DELETE(request: NextRequest) {
       return applyCors(
         NextResponse.json(
           { success: false, error: "ID aspirasi harus disertakan" },
-          { status: 400 },
-        ),
+          { status: 400 }
+        )
       );
     }
 
     const idNumber = parseInt(id);
     if (isNaN(idNumber)) {
       return applyCors(
-        NextResponse.json(
-          { success: false, error: "ID aspirasi tidak valid" },
-          { status: 400 },
-        ),
+        NextResponse.json({ success: false, error: "ID aspirasi tidak valid" }, { status: 400 })
       );
     }
 
@@ -173,7 +170,7 @@ export async function DELETE(request: NextRequest) {
     return applyCors(
       NextResponse.json(result, {
         status: result.success ? 200 : 404,
-      }),
+      })
     );
   } catch (error) {
     console.error("Error in DELETE aspirasi:", error);
@@ -184,8 +181,8 @@ export async function DELETE(request: NextRequest) {
           error: "Terjadi kesalahan server",
           details: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 500 },
-      ),
+        { status: 500 }
+      )
     );
   }
 }

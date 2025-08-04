@@ -62,7 +62,7 @@ export async function insertDisplayAspirasi(
   kategori: "prodi" | "hima",
   added_by: string,
   status: "displayed" | "hidden",
-  ilustrasiFilename?: string | null,
+  ilustrasiFilename?: string | null
 ): Promise<DisplayAspirasi | null> {
   try {
     const [aspirasiData] = await db
@@ -75,13 +75,19 @@ export async function insertDisplayAspirasi(
       return null;
     }
 
+    // Gunakan kategori dari aspirasi jika valid, jika tidak gunakan parameter kategori
+    let finalKategori = kategori;
+    if (aspirasiData.kategori === "hima" || aspirasiData.kategori === "prodi") {
+      finalKategori = aspirasiData.kategori;
+    }
+
     const [inserted] = await db
       .insert(displayAspirasi)
       .values({
         aspirasi: aspirasiData.aspirasi,
         penulis: aspirasiData.penulis ?? "",
         ilustrasi: ilustrasiFilename || null, // Simpan nama file ilustrasi
-        kategori,
+        kategori: finalKategori,
         added_by,
         last_updated: getCurrentTimestamp(),
         status,
@@ -96,9 +102,7 @@ export async function insertDisplayAspirasi(
 }
 
 // DELETE displayAspirasi by ID
-export async function deleteDisplayAspirasi(
-  id_dispirasi: number,
-): Promise<boolean> {
+export async function deleteDisplayAspirasi(id_dispirasi: number): Promise<boolean> {
   try {
     const deleted = await db
       .delete(displayAspirasi)
@@ -114,7 +118,7 @@ export async function deleteDisplayAspirasi(
 // UPDATE status (displayed / hidden)
 export async function updateDisplayAspirasiStatus(
   id_dispirasi: number,
-  status: "displayed" | "hidden",
+  status: "displayed" | "hidden"
 ): Promise<boolean> {
   try {
     const updated = await db
@@ -135,7 +139,7 @@ export async function updateDisplayAspirasiStatus(
 // UPDATE kategori (prodi / hima)
 export async function updateDisplayAspirasiKategori(
   id_dispirasi: number,
-  kategori: "prodi" | "hima",
+  kategori: "prodi" | "hima"
 ): Promise<boolean> {
   try {
     const updated = await db
@@ -157,7 +161,7 @@ export async function updateDisplayAspirasiKategori(
 export async function updateDisplayAspirasiText(
   id_dispirasi: number,
   aspirasiBaru: string,
-  ilustrasiFilename?: string | null,
+  ilustrasiFilename?: string | null
 ): Promise<boolean> {
   try {
     // Prepare update data
@@ -185,9 +189,7 @@ export async function updateDisplayAspirasiText(
 }
 
 // Function to get illustration filename by id_dispirasi (helpful for file management)
-export async function getDisplayAspirasiIlustrasi(
-  id_dispirasi: number,
-): Promise<string | null> {
+export async function getDisplayAspirasiIlustrasi(id_dispirasi: number): Promise<string | null> {
   try {
     const [result] = await db
       .select({ ilustrasi: displayAspirasi.ilustrasi })
@@ -204,7 +206,7 @@ export async function getDisplayAspirasiIlustrasi(
 // Function to update only illustration filename
 export async function updateDisplayAspirasiIlustrasi(
   id_dispirasi: number,
-  ilustrasiFilename: string | null,
+  ilustrasiFilename: string | null
 ): Promise<boolean> {
   try {
     const updated = await db
@@ -224,7 +226,7 @@ export async function updateDisplayAspirasiIlustrasi(
 
 // Function to get complete display aspirasi data by ID (useful for validation)
 export async function getDisplayAspirasiById(
-  id_dispirasi: number,
+  id_dispirasi: number
 ): Promise<DisplayAspirasi | null> {
   try {
     const [result] = await db
