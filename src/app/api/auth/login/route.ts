@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loginUser } from "@/db/auth";
 import { applyCors, handleOptions } from "@/utils/cors";
-
+import { applyPostAspirasiRateLimit } from "@/utils/rateLimiter";
 export async function OPTIONS() {
   return handleOptions();
 }
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("berhasil request");
+    const rateLimitResponse = await applyPostAspirasiRateLimit(request);
+    if (rateLimitResponse) {
+      return rateLimitResponse; // Return response rate limit jika terpicu
+    }
 
     const body = await request.json();
     const { email, password } = body;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { insertAspirasi, deleteAspirasi, getAllAspirasi, getAspirasiById } from "@/db/aspirasi";
 import { validateToken } from "@/utils/jwt";
 import { applyCors, handleOptions } from "@/utils/cors";
+import { applyPostAspirasiRateLimit } from "@/utils/rateLimiter";
 
 // OPTIONS - Handle preflight CORS
 export async function OPTIONS() {
@@ -75,6 +76,12 @@ export async function GET(request: NextRequest) {
 // POST - Menambahkan aspirasi baru
 export async function POST(request: NextRequest) {
   try {
+    // Terapkan rate limit
+    const rateLimitResponse = await applyPostAspirasiRateLimit(request);
+    if (rateLimitResponse) {
+      return rateLimitResponse; // Return response rate limit jika terpicu
+    }
+
     const body = await request.json();
 
     if (!body.aspirasi || typeof body.aspirasi !== "string") {
@@ -146,6 +153,27 @@ export async function POST(request: NextRequest) {
 // DELETE - Menghapus aspirasi berdasarkan id
 export async function DELETE(request: NextRequest) {
   try {
+    // Validasi JWT token
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return applyCors(
+        NextResponse.json(
+          { success: false, error: "Token tidak ditemukan di header" },
+          { status: 401 }
+        )
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "").trim();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { isValid, error, payload, newToken } = validateToken(token);
+
+    if (!isValid) {
+      return applyCors(
+        NextResponse.json({ success: false, error: error || "Token tidak valid" }, { status: 401 })
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -167,11 +195,16 @@ export async function DELETE(request: NextRequest) {
 
     const result = await deleteAspirasi(idNumber);
 
-    return applyCors(
-      NextResponse.json(result, {
-        status: result.success ? 200 : 404,
-      })
-    );
+    const response = NextResponse.json(result, {
+      status: result.success ? 200 : 404,
+    });
+
+    // Tambahkan token baru jika ada refresh token
+    if (newToken) {
+      response.headers.set("x-refreshed-token", newToken);
+    }
+
+    return applyCors(response);
   } catch (error) {
     console.error("Error in DELETE aspirasi:", error);
     return applyCors(

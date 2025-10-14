@@ -90,7 +90,7 @@ export async function getAllAspirasi() {
   }
 }
 
-// Function untuk get aspirasi by id (bonus)
+// Function untuk get aspirasi by id
 export async function getAspirasiById(id_aspirasi: number) {
   try {
     const result = await db
