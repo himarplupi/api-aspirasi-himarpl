@@ -20,11 +20,11 @@ export default async function Home() {
         <div className="text-white mt-8">
           <h3 className="text-lg font-bold mb-2">Daftar User:</h3>
           <ul className="list-disc ml-6">
-            {users.map((user) => (
+            {/* {users.map((user) => (
               <li key={user.id}>
                 {user.nama} - {user.email} ({user.role})
               </li>
-            ))}
+            ))} */}
           </ul>
         </div>
 
