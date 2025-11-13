@@ -19,9 +19,10 @@ export async function applyPostAspirasiRateLimit(request: NextRequest) {
     
     // Jika berhasil, tidak ada rate limit yang terpicu
     return null;
-  } catch (error) {
+  } catch (error: unknown) {
     // Rate limit terpicu
-    const resetAfterSeconds = Math.round((error as any).msBeforeNext / 1000) || 60;
+    const rateLimitError = error as { msBeforeNext?: number };
+    const resetAfterSeconds = Math.round((rateLimitError.msBeforeNext || 60000) / 1000);
     
     return applyCors(
       NextResponse.json(
