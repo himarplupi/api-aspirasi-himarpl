@@ -3,7 +3,7 @@
 import { db } from "./index";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { aspirasi, displayAspirasi } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 // Ambil semua aspirasi (dari tabel `aspirasi`)
 // export async function getAllAspirasi() {
@@ -17,6 +17,6 @@ export async function getDisplayedAspirasi() {
     .select()
     .from(displayAspirasi)
     .where(eq(displayAspirasi.status, "displayed"))
-    .orderBy(displayAspirasi.id_dispirasi);
+    .orderBy(desc(displayAspirasi.id_dispirasi));
   return result;
 }

@@ -3,6 +3,7 @@ import { insertAspirasi, deleteAspirasi, getAllAspirasi, getAspirasiById } from 
 import { validateToken } from "@/utils/jwt";
 import { applyCors, handleOptions } from "@/utils/cors";
 import { applyPostAspirasiRateLimit } from "@/utils/rateLimiter";
+import { verifyRecaptcha } from "@/utils/recaptcha";
 
 // OPTIONS - Handle preflight CORS
 export async function OPTIONS() {
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+    const param = searchParams.get("param");
 
     let result;
 
@@ -46,7 +48,8 @@ export async function GET(request: NextRequest) {
       }
       result = await getAspirasiById(idNumber);
     } else {
-      result = await getAllAspirasi();
+      // Pass param untuk pagination atau search
+      result = await getAllAspirasi(param ?? undefined);
     }
 
     const response = NextResponse.json(result, {
@@ -83,6 +86,40 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+
+    // Verifikasi reCAPTCHA token
+    const recaptchaToken = body.recaptchaToken;
+
+    if (!recaptchaToken) {
+      return applyCors(
+        NextResponse.json(
+          {
+            success: false,
+            error: "reCAPTCHA token tidak ditemukan",
+          },
+          { status: 400 }
+        )
+      );
+    }
+
+    // Verifikasi reCAPTCHA dengan Google API
+    const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+
+    if (!recaptchaResult.isValid) {
+      return applyCors(
+        NextResponse.json(
+          {
+            success: false,
+            error: "Verifikasi reCAPTCHA gagal. Pastikan Anda bukan robot.",
+            details: recaptchaResult.error,
+          },
+          { status: 403 }
+        )
+      );
+    }
+
+    // reCAPTCHA v2 verified successfully
+    console.log("reCAPTCHA v2 verified successfully");
 
     if (!body.aspirasi || typeof body.aspirasi !== "string") {
       return applyCors(

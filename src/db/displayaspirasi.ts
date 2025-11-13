@@ -1,6 +1,6 @@
 import { db } from "./index"; // sesuaikan path ini ke db instance kamu
 import { displayAspirasi, aspirasi } from "./schema";
-import { eq, like, sql } from "drizzle-orm";
+import { eq, like, sql, desc } from "drizzle-orm";
 import { DisplayAspirasi } from "./schema";
 
 // Helper function untuk mendapatkan timestamp saat ini dalam format ISO
@@ -14,7 +14,10 @@ export async function getDisplayAspirasi(param?: string): Promise<{
 }> {
   // CASE 1: Tanpa parameter -> ambil semua data
   if (!param) {
-    const data = await db.select().from(displayAspirasi);
+    const data = await db
+      .select()
+      .from(displayAspirasi)
+      .orderBy(desc(displayAspirasi.id_dispirasi));
     return {
       count: data.length,
       data,
@@ -29,6 +32,7 @@ export async function getDisplayAspirasi(param?: string): Promise<{
     const data = await db
       .select()
       .from(displayAspirasi)
+      .orderBy(desc(displayAspirasi.id_dispirasi))
       .limit(limit)
       .offset(start - 1);
 
@@ -48,7 +52,8 @@ export async function getDisplayAspirasi(param?: string): Promise<{
   const data = await db
     .select()
     .from(displayAspirasi)
-    .where(like(displayAspirasi.aspirasi, `%${param}%`));
+    .where(like(displayAspirasi.aspirasi, `%${param}%`))
+    .orderBy(desc(displayAspirasi.id_dispirasi));
 
   return {
     count: data.length,
