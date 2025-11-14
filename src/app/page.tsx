@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { getAllUsers } from "@/db/selectUsers"; // karena sekarang src/db
+// import { getAllUsers } from "@/db/selectUsers"; // karena sekarang src/db
 
 export default async function Home() {
-  const users = await getAllUsers();
+  // const users = await getAllUsers();
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -20,11 +20,11 @@ export default async function Home() {
         <div className="text-white mt-8">
           <h3 className="text-lg font-bold mb-2">Daftar User:</h3>
           <ul className="list-disc ml-6">
-            {users.map((user) => (
+            {/* {users.map((user) => (
               <li key={user.id}>
                 {user.nama} - {user.email} ({user.role})
               </li>
-            ))}
+            ))} */}
           </ul>
         </div>
 
@@ -54,13 +54,7 @@ export default async function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
+          <Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
           Learn
         </a>
       </footer>

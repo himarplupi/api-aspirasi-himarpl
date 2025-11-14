@@ -9,7 +9,7 @@ const client = createClient({
   // Gunakan URL database LibSQL/Turso Anda
   url: process.env.DATABASE_URL || "file:./local.db",
   // Jika menggunakan Turso, tambahkan authToken
-  // authToken: process.env.DATABASE_AUTH_TOKEN,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
 // Inisialisasi Drizzle ORM dengan skema

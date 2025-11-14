@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 // Kunci rahasia untuk JWT (sebaiknya disimpan di environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || "wlawlewlo";
+const JWT_SECRET = process.env.JWT_SECRET || "himaplsolidsolidsolid";
 
 // Interface untuk payload JWT
 export interface JWTPayload {

@@ -1,7 +1,7 @@
 import { db } from "./index";
 import { users, User, NewUser } from "./schema";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { eq, and, ne } from "drizzle-orm";
+import { eq, and, ne, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createToken } from "@/utils/jwt";
 
@@ -26,7 +26,7 @@ export interface UserServiceResponse {
  */
 export async function getAllUsersExceptSelf(
   currentUserId: number,
-  currentUserRole: string,
+  currentUserRole: string
 ): Promise<UserServiceResponse> {
   try {
     // Query untuk mengambil semua user kecuali user yang sedang login
@@ -38,7 +38,8 @@ export async function getAllUsersExceptSelf(
         role: users.role,
       })
       .from(users)
-      .where(ne(users.id, currentUserId)); // Hanya kecuali diri sendiri
+      .where(ne(users.id, currentUserId))
+      .orderBy(desc(users.id)); // Urutkan dari yang paling baru
 
     return {
       success: true,
@@ -66,7 +67,7 @@ export async function getAllUsersExceptSelf(
 export async function getUserById(
   userId: number,
   currentUserId: number,
-  currentUserRole: string,
+  currentUserRole: string
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba mengakses data diri sendiri
@@ -121,7 +122,7 @@ export async function getUserById(
 export async function deleteUser(
   userId: number,
   currentUserId: number,
-  currentUserRole: string,
+  currentUserRole: string
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba menghapus diri sendiri
@@ -182,7 +183,7 @@ export async function updateUserRole(
   userId: number,
   newRole: "admin" | "superadmin",
   currentUserId: number,
-  currentUserRole: string,
+  currentUserRole: string
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba mengupdate diri sendiri
@@ -252,7 +253,7 @@ export async function updateUserRole(
 export async function promoteToSuperadmin(
   userId: number,
   currentUserId: number,
-  currentUserRole: string,
+  currentUserRole: string
 ): Promise<UserServiceResponse> {
   try {
     // Cek apakah user mencoba promote diri sendiri
@@ -293,16 +294,10 @@ export async function promoteToSuperadmin(
     }
 
     // Mulai transaksi: ubah current superadmin menjadi admin
-    await db
-      .update(users)
-      .set({ role: "admin" })
-      .where(eq(users.id, currentUserId));
+    await db.update(users).set({ role: "admin" }).where(eq(users.id, currentUserId));
 
     // Promote user baru menjadi superadmin
-    await db
-      .update(users)
-      .set({ role: "superadmin" })
-      .where(eq(users.id, userId));
+    await db.update(users).set({ role: "superadmin" }).where(eq(users.id, userId));
 
     // Ambil data user yang sudah dipromote
     const [promotedUser] = await db
@@ -343,7 +338,7 @@ export async function registerUser(
     password: string;
     role?: string;
   },
-  currentUserRole: string,
+  currentUserRole: string
 ): Promise<UserServiceResponse> {
   try {
     // Hash password
